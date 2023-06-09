@@ -10,7 +10,7 @@ import cors from 'cors';
 console.log(cors)
 
 const corsOptions = {
-    origin: 'http://localhost:3000', // use your actual domain name (or localhost), using * is not recommended
+    origin: 'https://btp-frontend-beryl.vercel.app', // use your actual domain name (or localhost), using * is not recommended
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'x-client-key', 'x-client-token', 'x-client-secret', 'Authorization'],
     credentials: true
@@ -45,7 +45,7 @@ console.log(clientId)
 const tenantId = process.env.MICROSOFT_GRAPH_TENANT_ID;
 const clientSecret = process.env.MICROSOFT_GRAPH_CLIENT_SECRET;
 
-const redirectUri = 'http://localhost:3000/studentallproject';
+const redirectUri = 'https://btp-frontend-beryl.vercel.app/studentallproject';
 const scopes = 'user.read';
 
 
