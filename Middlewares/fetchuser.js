@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config({path:"backend/config/.env"});
+dotenv.config({path:"config/.env"});
 
 import jwt from "jsonwebtoken";       // Importing jsonwebtoken from npm .
 const JWT_SECRET = process.env.JWT_SECRET;   // Importing JWT_SECRET from the .env file.

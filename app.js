@@ -1,6 +1,6 @@
-import dotenv from "dotenv"
-dotenv.config({path:"backend/config/.env"});
-import passport from "passport";
+import dotenv from "dotenv";
+dotenv.config({path:"config/.env"});
+
 import express from "express";
 
 const app = express();
@@ -19,7 +19,6 @@ const corsOptions = {
  app.use(cors({corsOptions})); 
 
 import User from "./Views/user.js";
-import msRoute from "./Controllers/studentLoginController.js";
 
 import sessions from "express-session";
 import cookieParser from "cookie-parser";
@@ -74,9 +73,6 @@ app.use(sessions({
 }));
 
 
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 // app.use("",msRoute);
 app.use(authRouter)

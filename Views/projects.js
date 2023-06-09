@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import express from "express";
 import { deleteProject, deselectProject,  getAllItems, getOwnerDeltails, getPostedProjects, newproject, selectProject, updateProjectDetails, downLoadDetails, getprojectDetails, newStudent, getallstudent } from "../Controllers/projectController.js";
 const router = express.Router();
