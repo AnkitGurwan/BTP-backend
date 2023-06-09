@@ -25,7 +25,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 passport.use(new MicrosoftStrategy({
     clientID: process.env.MS_CLIENT_ID,
     clientSecret: process.env.MS_CLIENT_VALUE,
-    callbackURL: `${process.env.BACKENDURL}/auth/microsoft/callback`,
+    callbackURL: "http://localhost:5000/auth/microsoft/callback",
     scope: ['user.read'],
     tenant: 'common',
     authorizationURL: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',

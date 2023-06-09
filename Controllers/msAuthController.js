@@ -1,6 +1,6 @@
 import msal from '@azure/msal-node';
 import request from 'request';
-const REDIRECT_URI = `${process.env.BACKENDURL}/auth/microsoft/callback/redirect`;
+const REDIRECT_URI = "http://localhost:5000/auth/microsoft/callback/redirect";
 // const REDIRECT_URI = "http://localhost:3000/testlogin";
 const clientID = process.env.MICROSOFT_GRAPH_CLIENT_ID;
 const tenantID = process.env.MICROSOFT_GRAPH_TENANT_ID;
@@ -14,7 +14,7 @@ const config = {
     clientId: clientID,
     authority: "https://login.microsoftonline.com/"+tenantID,
     clientSecret: clientSecret,
-    redirectUri: `${process.env.FRONTENDURL}/studentallproject`,
+    redirectUri: 'http://localhost:3000/studentallproject',
   },
   system: {
     loggerOptions: {
@@ -33,7 +33,7 @@ const app = express();
 export const login = async (req, res) => {
   const authCodeUrlParameters = {
     scopes: ['user.read'],
-    redirectUri: `${process.env.FRONTENDURL}/studentallproject`,
+    redirectUri: 'http://localhost:3000/studentallproject',
   };
 
   const authUrl = await pca.getAuthCodeUrl(authCodeUrlParameters);
@@ -59,7 +59,7 @@ export const getToken = async (req,res) => {
   formData.append('client_id', clientID);
   formData.append('client_secret', clientSecret);
   formData.append('scope', "openid profile email");
-  formData.append('redirect_uri', `${process.env.FRONTENDURL}/studentallproject`);
+  formData.append('redirect_uri', 'http://localhost:3000/studentallproject');
   formData.append('grant_type', 'authorization_code');
   formData.append('code', req.headers.code);
   formData.append('resource', "https://graph.microsoft.com");

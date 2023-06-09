@@ -86,7 +86,7 @@ const createUser = async (req, res) => {
             }
         }, JWT_SECRET);
 
-        const body = `Hello ${req.body.name}, Thank you for showing intrest in BTP website . To finish signing up, you just need to confirm your email by clicking the link below.\n\n${process.env.BACKENDURL}/set-password/${token2}`
+        const body = `Hello ${req.body.name}, Thank you for showing intrest in BTP website . To finish signing up, you just need to confirm your email by clicking the link below.\n\nhttp://localhost:3000/set-password/${token2} `
         const email = req.body.email;
         const subject = 'Email Confirmation Mail'
         sendEmail(email, body, subject)
@@ -166,7 +166,7 @@ const resetPassword = async (req, res) => {
         }
         else {
 
-            const body = `Hello ${user.name}, Somebody requested a new password for the BTP website account associated with ${user.email}.\n\n No changes have been made to your account yet.\n\nYou can reset your password by clicking the link below:\n${process.env.BACKENDURL}/reset-set-password/${user.email}/${user.token}  \n\nIf you did not request a new password, please let us know immediately by replying to this email.\n\n Yours, \nMESA`
+            const body = `Hello ${user.name}, Somebody requested a new password for the BTP website account associated with ${user.email}.\n\n No changes have been made to your account yet.\n\nYou can reset your password by clicking the link below:\nhttp://localhost:3000/reset-set-password/${user.email}/${user.token}  \n\nIf you did not request a new password, please let us know immediately by replying to this email.\n\n Yours, \nMESA`
             const email = req.body.email;
             const subject = 'Password Change Request'
             sendEmail(email, body, subject)
