@@ -17,11 +17,8 @@ import { google } from 'googleapis';
 import Student from "../Models/Student.js";
 
 
-
 const oAuthClient = new google.auth.OAuth2(process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.REDIRECT_URI)
 oAuthClient.setCredentials({ refresh_token: process.env.REFRESH_TOKEN })
-
-
 
 
 async function sendEmail(email, body, subject) {
@@ -59,19 +56,14 @@ async function sendEmail(email, body, subject) {
             }
         });
 
-
     } catch (err) {
         console.log("err = ", err);
     }
-
-
-
 }
 
 
 const createUser = async (req, res) => {
     const email = req.body.email;
-
     const isExist = await User.findOne({ email: email });
     const isStud = await Student.findOne({ email: email });
 
@@ -104,7 +96,6 @@ const confirmEmail = async (req, res) => {
 
     if (usexr) {
         res.status(400).json({ "msg": "User Already Existed" });
-
     }
     else {
         bcrypt.hash(req.body.password, saltRounds, async (err, hash) => {            // Helps to hash password 
@@ -122,7 +113,6 @@ const confirmEmail = async (req, res) => {
             });
             res.status(200).json({ "msg": token })
             // In the response sent the token.
-
         })
     }
 }
@@ -214,7 +204,6 @@ const extract_users = async (users_array) => {
         let user = await users.findById(users_array[i]).select("-password -seckey").lean();;
         users.push(user);
     }
-
     return users;
 }
 const getAllusers = async (req, res) => {
@@ -224,7 +213,6 @@ const getAllusers = async (req, res) => {
     if (!user) {
         res.status(200).json({ msg: "User Not Found" });
     }
-
     else {
         const users = user;
         const users_array = await extract_users(users);

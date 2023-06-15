@@ -2,24 +2,13 @@ import dotenv from "dotenv";
 dotenv.config({path:"config/.env"});
 
 import express from "express";
-import mongoose from "mongoose";
 import Student from "../Models/Student.js";
-import jwt from "jsonwebtoken"
-
 import passport from "passport";
-
 import passportMicrosoft from "passport-microsoft";
 
-import Project from "../Models/Project.js";
-
 const MicrosoftStrategy = passportMicrosoft.Strategy;
-
 const router = express.Router();
-
-
 const JWT_SECRET = process.env.JWT_SECRET;
-
-
 
 
 passport.use(new MicrosoftStrategy({
@@ -92,11 +81,3 @@ router.get('/auth/microsoft/callback',
     });
   });
 // const 
-
-
-
-
-
-
-
-

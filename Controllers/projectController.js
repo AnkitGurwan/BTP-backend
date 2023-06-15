@@ -1,11 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config({path:"config/.env"});
 
-import express from "express";
 import Project from "../Models/Project.js";
 import Student from "../Models/Student.js";
 import User from "../Models/User.js";
-// import User from "../Models/User.js";
 
 import XLSX from "xlsx";
 import { dirname } from "path";
@@ -66,12 +64,10 @@ const newproject = async (req, res) => {
         var today = new Date();
         const d = new Date();
 
-
         function addZero(i) {
             if (i < 10) { i = "0" + i }
             return i;
         }
-
 
         let h = addZero(d.getHours());
         let m = addZero(d.getMinutes());
@@ -96,7 +92,6 @@ const newproject = async (req, res) => {
             updation_time: "",
             getfull: full,
         })
-
         const addProject = await User.findByIdAndUpdate(isvaliD._id, { $push: { projects_posted: newItem._id } })   // Push the intrestedPeople array in the Items.
 
         res.status(200).json({ msg: "Success" });
@@ -107,11 +102,8 @@ const newproject = async (req, res) => {
 const newStudent = async (req, res) => {
 
     const isValid = await Student.findOne({ email: req.body.userEmail });
-    console.log("user",isValid)
-    console.log("step3")
 
     if(!isValid){
-        console.log("step4")
         await Student.create({
         name: req.body.user1name,
         email: req.body.user1email,
@@ -121,7 +113,6 @@ const newStudent = async (req, res) => {
         is_banned: false,   
     })}
     
-    console.log("step5")
         res.status(200).json({ msg: "Success" });
     }
 
@@ -133,11 +124,11 @@ const newStudent = async (req, res) => {
 //     if(isvaliD2)
 //     res.status(200).json(isvaliD2);
 // }
+
 const getallstudent = async (req, res) => {
     const students = await Student.find();
     res.status(200).json(students);
 }
-
 
 
 const updateProjectDetails = async (req, res) => {
@@ -214,10 +205,8 @@ const updateProjectDetails = async (req, res) => {
 
             res.status(200).json({ msg: "success" });
         }
-
     }
 }
-
 
 
 const deleteProject = async (req, res) => {
@@ -229,7 +218,7 @@ const deleteProject = async (req, res) => {
     if (!project) {
         res.status(404).json({ msg: "Not Found" });
     }
-    else if (String(project.ownerDetails) !== String(user._id)) {               // If Item found but doesn't belongs to the logged in user.
+    else if (String(project.ownerDetails) !== String(user._id)) { // If Item found but doesn't belongs to the logged in user.
         res.status(403).send("This Item Doesn't Belongs This You.");
     }
 
@@ -246,7 +235,6 @@ const deleteProject = async (req, res) => {
         const isDeleted = await Project.findByIdAndDelete(pId);
         const delProject = await User.findByIdAndUpdate(user._id, { $pull: { projects_posted: project._id } })   // Push the intrestedPeople array in the Items.
         res.status(200).json({ msg: "Success" });
-
     }
 }
 
@@ -272,7 +260,6 @@ const getOwnerDeltails = async (req, res) => {
 }
 const getprojectDetails = async (req, res) => {
     const id = req.params.id;
-
     const project = await Project.findById(id);
     
     if (!project) {
@@ -282,7 +269,6 @@ const getprojectDetails = async (req, res) => {
     else {
        
             res.status(200).json(project);
-
     }
 }
 
@@ -294,7 +280,6 @@ const getAllItems = async (req, res) => {
 
 
 const selectProject = async (req, res) => {
-    console.log("uuuuiiiii")
    
     const pId = req.params.id;
     const project = await Project.findById(pId);
@@ -308,7 +293,6 @@ const selectProject = async (req, res) => {
     if (project.intrestedPeople.length !== 0) {
         res.status(400).json({ msg: "Project Already Alloted." });
     }
-
 
     else {
         
@@ -342,7 +326,6 @@ const selectProject = async (req, res) => {
         else {
             res.status(403).json({ msg: "Partner Not Exists" });
         }
-
     }
     
 }
@@ -357,17 +340,13 @@ const deselectProject = async (req, res) => {
             res.status(400).json({ msg: "No Project Alloted Yet." });
         }
 
-
-        else {
-            
+        else {  
             const user = await Student.findOne({ email: req.params.user })
-
 
 
             if (user&&String(user.projectName) !== String(project._id)) {
                 res.status(401).json({ msg: "This Project is not alloted to you." })
             }
-
 
             else {
                 if(project && user){
@@ -380,14 +359,11 @@ const deselectProject = async (req, res) => {
             }
         }
 
-
         }
     }
-
     else{
         res.status(405).json({msg:"Failure"});
     }
-
 
 }
 
@@ -408,13 +384,11 @@ const getPostedProjects = async (req, res) => {
 }
 
 
-
 const downLoadDetails = async (req, res, next) => {
     console.log("0")
     var wb = XLSX.utils.book_new();
     const user = req.params.email;
     const isValidUser = await User.findOne({ email: user });
-    console.log("1")
     
     if(isValidUser)
     var arrayOfProjects = isValidUser.projects_posted;
@@ -434,8 +408,6 @@ const downLoadDetails = async (req, res, next) => {
     console.log("ready to download",details)
     // res.status(200).json(details);
 }
-
-
 
 
 export { newproject,newStudent,getallstudent, updateProjectDetails, deleteProject, getOwnerDeltails, getAllItems, selectProject, deselectProject, getPostedProjects, downLoadDetails,getprojectDetails };
