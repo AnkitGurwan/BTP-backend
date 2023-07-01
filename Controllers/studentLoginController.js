@@ -8,7 +8,6 @@ import passportMicrosoft from "passport-microsoft";
 
 const MicrosoftStrategy = passportMicrosoft.Strategy;
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET;
 
 
 passport.use(new MicrosoftStrategy({

@@ -1,20 +1,15 @@
 import dotenv from "dotenv";
 dotenv.config({path:"config/.env"});
 
-import express from "express";
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import nodemailer from 'nodemailer';
-
-const JWT_SECRET = process.env.JWT_SECRET;
-
-const saltRounds = 10;
-
 import User from "../Models/User.js";
-
 import { google } from 'googleapis';
 import Student from "../Models/Student.js";
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const saltRounds = 10;
 
 
 const oAuthClient = new google.auth.OAuth2(process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.REDIRECT_URI)
@@ -25,7 +20,6 @@ async function sendEmail(email, body, subject) {
 
     try {
         const accessToken = await oAuthClient.getAccessToken();
-        // console.log("access token =",accessToken);
         var transporter = nodemailer.createTransport({        // function to send mail to register user
             service: 'gmail',     // mail sending platform
             auth: {
@@ -119,7 +113,6 @@ const confirmEmail = async (req, res) => {
 
 
 const login = async (req, res) => {
-
     const user = await User.findOne({ email: req.body.email });
     
     if (!user) {

@@ -2,12 +2,10 @@ import dotenv from "dotenv";
 dotenv.config({path:"config/.env"});
 
 import express from "express";
-
 const app = express();
 
 import querystring from 'querystring';
 import cors from 'cors';
-console.log(cors)
 
 const corsOptions = {
     origin: `${process.env.FRONTENDURL}`, // use your actual domain name (or localhost), using * is not recommended

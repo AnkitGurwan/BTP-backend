@@ -2,7 +2,6 @@ import msal from '@azure/msal-node';
 import request from 'request';
 import fetch from "node-fetch"
 
-const REDIRECT_URI = `${process.env.BACKENDURL}/auth/microsoft/callback/redirect`;
 const clientID = process.env.MICROSOFT_GRAPH_CLIENT_ID;
 const tenantID = process.env.MICROSOFT_GRAPH_TENANT_ID;
 const clientSecret = process.env.MICROSOFT_GRAPH_CLIENT_SECRET;
@@ -28,7 +27,6 @@ const config = {
 
 const pca = new msal.PublicClientApplication(config);
 
-const app = express();
 
 export const login = async (req, res) => {
   const authCodeUrlParameters = {
@@ -44,12 +42,11 @@ export const login = async (req, res) => {
 
 
 export const getToken = async (req,res) => {
-  console.log("1")
+
   const url = `https://login.microsoftonline.com/${tenantID}/oauth2/token`;
   const formData = new URLSearchParams();
 
-
-  
+  //formdata
   formData.append('client_id', clientID);
   formData.append('client_secret', clientSecret);
   formData.append('scope', "openid profile email");
@@ -67,14 +64,10 @@ export const getToken = async (req,res) => {
   });
   
 
-
   if (response.ok) {
-    console.log("iiii")
     const data = await response.json();
-    console.log(data)
+   
     const accessToken=data.access_token;
-    const id=data.clientID;
-    console.log(id)
     
     const url2 = 'https://graph.microsoft.com/v1.0/me';
 
@@ -83,15 +76,13 @@ export const getToken = async (req,res) => {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    console.log("new reponse",response2)
+    
     if (response2.ok) {
       const data = await response2.json();
-      console.log("final step")
-      console.log("data",data)
+      
 
       res.status(200).json({ studInformation: data });
     } else {
-      console.log("jjjj")
       throw new Error(await response2.text());
     }
     } 

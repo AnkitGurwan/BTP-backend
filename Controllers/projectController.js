@@ -20,7 +20,6 @@ const extract_projects = async (projects_array) => {
         let project = await Project.findById(projects_array[i]).select("-password -seckey").lean();;
         projects.push(project);
     }
-
     return projects;
 }
 
@@ -28,27 +27,27 @@ const extract_projects = async (projects_array) => {
 const intrestedPeople = async (arrayOfProjects) => {
     var result = [];
 
-if(arrayOfProjects){
-    for (let i = 0; i < arrayOfProjects.length; i++) {
-        const project = await Project.findById(arrayOfProjects[i]);
-        if (project) {
-            for (let j = 0; j < 2; j++) {
-                let people = await Student.find({email:project.intrestedPeople[j]}).select("-password -seckey -is_banned -is_admin -role -_id -projectName ");
-                let people2 = await Student.find({email:project.intrestedPeople[j]}).select("-password -seckey -is_banned -is_admin -role -_id -projectName -partner -token -__v");
-                if(people)
-                var partner = await Student.findById(people.partner);
-                if(partner && people2)
-                people2.partner_name = partner.name;
-                if(project && people2)
-                people2.project_name = project.title;
-                result.push(people2);
+    if(arrayOfProjects){
+        for (let i = 0; i < arrayOfProjects.length; i++) {
+            const project = await Project.findById(arrayOfProjects[i]);
+            if (project) {
+                for (let j = 0; j < 2; j++) {
+                    let people = await Student.find({email:project.intrestedPeople[j]}).select("-password -seckey -is_banned -is_admin -role -_id -projectName ");
+                    let people2 = await Student.find({email:project.intrestedPeople[j]}).select("-password -seckey -is_banned -is_admin -role -_id -projectName -partner -token -__v");
+                    if(people)
+                    var partner = await Student.findById(people.partner);
+                    if(partner && people2)
+                    people2.partner_name = partner.name;
+                    if(project && people2)
+                    people2.project_name = project.title;
+                    result.push(people2);
+                }
             }
         }
     }
-}
-
     return result;
 }
+
 
 const newproject = async (req, res) => {
 
@@ -96,8 +95,8 @@ const newproject = async (req, res) => {
 
         res.status(200).json({ msg: "Success" });
     }
-
 }
+
 
 const newStudent = async (req, res) => {
 
@@ -112,18 +111,9 @@ const newStudent = async (req, res) => {
         partner: '000000000000000000000000',
         is_banned: false,   
     })}
-    
         res.status(200).json({ msg: "Success" });
     }
 
-// const getallstudent= async (req, res) => {
-//     const isvaliD1 = await Student.findOne({ email: req.params.email });
-//     if(isvaliD1 && isvaliD1.partner!='000000000000000000000000')
-//     var isvaliD2 = await Student.findById(isvaliD1.partner );
-
-//     if(isvaliD2)
-//     res.status(200).json(isvaliD2);
-// }
 
 const getallstudent = async (req, res) => {
     const students = await Student.find();
@@ -267,7 +257,6 @@ const getprojectDetails = async (req, res) => {
     }
 
     else {
-       
             res.status(200).json(project);
     }
 }
@@ -364,7 +353,6 @@ const deselectProject = async (req, res) => {
     else{
         res.status(405).json({msg:"Failure"});
     }
-
 }
 
 
