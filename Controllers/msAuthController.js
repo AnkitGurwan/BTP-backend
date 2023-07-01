@@ -1,5 +1,7 @@
 import msal from '@azure/msal-node';
 import request from 'request';
+import fetch from "node-fetch"
+
 const REDIRECT_URI = `${process.env.BACKENDURL}/auth/microsoft/callback/redirect`;
 const clientID = process.env.MICROSOFT_GRAPH_CLIENT_ID;
 const tenantID = process.env.MICROSOFT_GRAPH_TENANT_ID;
