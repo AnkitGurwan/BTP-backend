@@ -8,8 +8,8 @@ import querystring from 'querystring';
 import cors from 'cors';
 
 const corsOptions = {
-    // origin: `${process.env.FRONTENDURL}`, // use your actual domain name (or localhost), using * is not recommended
-    origin: "http://localhost:3000", // use your actual domain name (or localhost), using * is not recommended
+    origin: `${process.env.FRONTENDURL}`, // use your actual domain name (or localhost), using * is not recommended
+    // origin: "http://localhost:3000", // use your actual domain name (or localhost), using * is not recommended
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
     allowedHeaders: ['Content-Type' , 'auth-token' , 'Accept' , 'Code' , 'Origin', 'Authorization'],
     credentials: true
@@ -20,9 +20,6 @@ const corsOptions = {
 import User from "./Views/user.js";
 
 import sessions from "express-session";
-import cookieParser from "cookie-parser";
-
-import cokkieSession from "cookie-session";
 
 import student from "./Views/student.js";
 import project from "./Views/projects.js";
@@ -30,7 +27,6 @@ import project from "./Views/projects.js";
 
 app.use(express.json());
 
-import mongoose from "mongoose";
 import Student from "./Models/Student.js";
 
 //mongoose connection

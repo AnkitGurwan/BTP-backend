@@ -24,7 +24,7 @@ async function sendEmail(email, body, subject) {
             service: 'gmail',     // mail sending platform
             auth: {
                 type: 'OAuth2',
-                user: 'innovatorsolx@gmail.com',    // Sender Mail Address
+                user: 'ankitgurwan083@gmail.com',    // Sender Mail Address
                 pass: process.env.EMAIL_PASSWORD,   // Sender Mail Password
                 clientId: process.env.CLIENT_ID,
                 clientSecret: process.env.CLIENT_SECRET,
@@ -34,7 +34,7 @@ async function sendEmail(email, body, subject) {
         });
 
         var mailOptions = {
-            from: 'innovatorsolx@gmail.com',             // Sender Email
+            from: 'ankitgurwan083@gmail.com',             // Sender Email
             to: email,                             // Email requested by user
             subject: subject,         // Subject Of The Mail
             text: body,
@@ -59,9 +59,9 @@ async function sendEmail(email, body, subject) {
 const createUser = async (req, res) => {
     const email = req.body.email;
     const isExist = await User.findOne({ email: email });
-    const isStud = await Student.findOne({ email: email });
+    // const isStud = await Student.findOne({ email: email });
 
-    if (isExist || isStud) {
+    if (isExist ) {
         res.status(400).json({msg:"Email Already Exisited "});
     }
     else {

@@ -8,6 +8,8 @@ import User from "../Models/User.js";
 import XLSX from "xlsx";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import excelJS from "exceljs";
+import { Console } from "console";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -29,20 +31,17 @@ const intrestedPeople = async (arrayOfProjects) => {
 
     if(arrayOfProjects){
         for (let i = 0; i < arrayOfProjects.length; i++) {
+            var student = [];
             const project = await Project.findById(arrayOfProjects[i]);
             if (project) {
                 for (let j = 0; j < 2; j++) {
-                    let people = await Student.find({email:project.intrestedPeople[j]}).select("-password -seckey -is_banned -is_admin -role -_id -projectName ");
-                    let people2 = await Student.find({email:project.intrestedPeople[j]}).select("-password -seckey -is_banned -is_admin -role -_id -projectName -partner -token -__v");
-                    if(people)
-                    var partner = await Student.findById(people.partner);
-                    if(partner && people2)
-                    people2.partner_name = partner.name;
-                    if(project && people2)
+                    let people2 = await Student.find({email:project.intrestedPeople[j]}).select("-password -seckey -is_banned -is_admin -role -_id -partner -token -__v");
                     people2.project_name = project.title;
-                    result.push(people2);
+
+                    student.push(people2);
                 }
             }
+            result.push(student);
         }
     }
     return result;
@@ -261,6 +260,14 @@ const getprojectDetails = async (req, res) => {
     }
 }
 
+const getProjectName = async (reqId) => {
+    const id = reqId;
+    const project = await Project.findById(id);
+    console.log("project",project)
+    
+    return project.title;
+}
+
 
 const getAllItems = async (req, res) => {
     const projects = await Project.find();
@@ -373,29 +380,73 @@ const getPostedProjects = async (req, res) => {
 
 
 const downLoadDetails = async (req, res, next) => {
-    console.log("0")
-    var wb = XLSX.utils.book_new();
-    const user = req.params.email;
+    const workbook = new excelJS.Workbook();
+    const worksheet = workbook.addWorksheet("My Users");
+
+    const user = req.user.id;
     const isValidUser = await User.findOne({ email: user });
-    
+    var path = __dirname + `/public/student_data.xlsx`;
+
+
+    worksheet.columns = [
+        { header: "S no.", key: "s_no", width: 10 }, 
+        { header: "Project Name", key: "pname", width: 30 },
+        { header: "Student 1 Name", key: "name1", width: 20 },
+        { header: "Student 1 Roll", key: "roll1", width: 15 },
+        { header: "Student 1 ID", key: "id1", width: 20 },
+        { header: "Student 2 Name", key: "name2", width: 20 },
+        { header: "Student 2 Roll", key: "roll2", width: 15 },
+        { header: "Student 2 ID", key: "id2", width: 20 },
+    ];
+
+    let counter = 1;
     if(isValidUser)
     var arrayOfProjects = isValidUser.projects_posted;
-
-
     var details = await intrestedPeople(arrayOfProjects);
-    var temp = JSON.stringify(details);
-    temp = JSON.parse(temp);
-    var ws = XLSX.utils.json_to_sheet(temp);
+    
+    details.forEach((entry) => {
+        
+        worksheet.addRow({s_no: counter, pname: entry[0].project_name , name1:entry[0][0].name,roll1:entry[0][0].rollNum,id1:entry[0][0].email,
+        name2:entry[1][0].name,roll2:entry[1][0].rollNum,id2:entry[1][0].email }); // Add data in worksheet
+        counter++;
+    });
 
-    console.log("2")
+        // Making first line in excel bold
+    worksheet.getRow(1).eachCell((cell) => {
+        cell.font = { bold: true };
+    });
 
-    var down = __dirname + `/public/student_data.xlsx`;
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet 1");
-    XLSX.writeFile(wb, down);
-    res.status(200).download(down);
-    console.log("ready to download",details)
-    // res.status(200).json(details);
+    const data = await workbook.xlsx.writeFile(path);
+    res.status(200).download(path);
+    
 }
+  
 
 
 export { newproject,newStudent,getallstudent, updateProjectDetails, deleteProject, getOwnerDeltails, getAllItems, selectProject, deselectProject, getPostedProjects, downLoadDetails,getprojectDetails };
+
+
+// console.log("0")
+// var wb = XLSX.utils.book_new();
+// const user = req.params.email;
+// const isValidUser = await User.findOne({ email: user });
+
+// if(isValidUser)
+// var arrayOfProjects = isValidUser.projects_posted;
+
+
+// var details = await intrestedPeople(arrayOfProjects);
+// var temp = JSON.stringify(details);
+// temp = JSON.parse(temp);
+// var ws = XLSX.utils.json_to_sheet(temp);
+
+// console.log("2")
+
+// var down = __dirname + `/public/student_data.xlsx`;
+// XLSX.utils.book_append_sheet(wb, ws, "Sheet 1");
+// XLSX.write(wb, down);
+// res.status(200).download(down);
+// console.log("ready to download",details)
+// // console.log("ready",XLSX)
+// // res.status(200).json(details);
+// }
