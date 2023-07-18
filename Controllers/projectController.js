@@ -403,13 +403,16 @@ const downLoadDetails = async (req, res, next) => {
     if(isValidUser)
     var arrayOfProjects = isValidUser.projects_posted;
     var details = await intrestedPeople(arrayOfProjects);
-    
-    details.forEach((entry) => {
-        
-        worksheet.addRow({s_no: counter, pname: entry[0].project_name , name1:entry[0][0].name,roll1:entry[0][0].rollNum,id1:entry[0][0].email,
-        name2:entry[1][0].name,roll2:entry[1][0].rollNum,id2:entry[1][0].email }); // Add data in worksheet
-        counter++;
-    });
+
+    if(details)
+    {
+        details.forEach((entry) => {
+            
+            worksheet.addRow({s_no: counter, pname: entry[0].project_name , name1:entry[0][0].name,roll1:entry[0][0].rollNum,id1:entry[0][0].email,
+            name2:entry[1][0].name,roll2:entry[1][0].rollNum,id2:entry[1][0].email }); // Add data in worksheet
+            counter++;
+        });
+    }
 
         // Making first line in excel bold
     worksheet.getRow(1).eachCell((cell) => {

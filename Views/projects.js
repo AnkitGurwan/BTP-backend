@@ -3,6 +3,7 @@ import { deleteProject, deselectProject,  getAllItems, getOwnerDeltails, getPost
 const router = express.Router();
 
 import {fetchuser,fetchUserByEmail} from "../Middlewares/fetchuser.js";
+import { sendFeedback } from "../Controllers/userController.js";
 
 router.post("/newproject",fetchuser,newproject);
 router.post("/newstudent",newStudent);
@@ -16,6 +17,7 @@ router.get("/deselectproject/:id/:user",deselectProject);
 router.get("/projectsposted",fetchuser,getPostedProjects);
 router.get("/intrestedpeople/:token",fetchUserByEmail,downLoadDetails);
 router.get("/getallstudent",getallstudent);
+router.get("/feedback",sendFeedback);
 
 const project = router
 
