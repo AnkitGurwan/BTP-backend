@@ -73,10 +73,10 @@ async function sendFeedbackEmail(email, body, subject) {
         });
 
         var mailOptions = {
-            from: email,             // Sender Email
-            to: 'ankitgurwan083@gmail.com',                             // Email requested by user
+            from: 'ankitgurwan083@gmail.com',             // Sender Email
+            to: 'a.gurwan@iitg.ac.in',                             // Email requested by user
             subject: subject,         // Subject Of The Mail
-            text: body,
+            text: `User with email ${email} has complained :\n${body}`,
             //Custom Mail Message With the link to confirm email address (The link contain the user id and token corresponding)
         };
 
@@ -125,7 +125,7 @@ const sendFeedback = async (req, res) => {
     const body = req.body.body;
 
     
-    sendEmail(email, body, header);
+    sendFeedbackEmail(email, body, header);
     res.status(200).json({msg:"Email Sent SuccessFully"})
     
 }

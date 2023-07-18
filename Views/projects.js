@@ -17,7 +17,7 @@ router.get("/deselectproject/:id/:user",deselectProject);
 router.get("/projectsposted",fetchuser,getPostedProjects);
 router.get("/intrestedpeople/:token",fetchUserByEmail,downLoadDetails);
 router.get("/getallstudent",getallstudent);
-router.get("/feedback",sendFeedback);
+router.post("/feedback",sendFeedback);
 
 const project = router
 
