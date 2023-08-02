@@ -103,9 +103,9 @@ const newStudent = async (req, res) => {
 
     if(!isValid){
         await Student.create({
-        name: req.body.user1name,
-        email: req.body.user1email,
-        rollNum: req.body.user1roll,
+        name: req.body.userName,
+        email: req.body.userEmail,
+        rollNum: req.body.userRoll,
         projectName: '000000000000000000000000',
         partner: '000000000000000000000000',
         is_banned: false,   
