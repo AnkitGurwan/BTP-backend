@@ -407,9 +407,9 @@ const downLoadDetails = async (req, res, next) => {
     if(details)
     {
         details.forEach((entry) => {
-            
-            worksheet.addRow({s_no: counter, pname: entry[0].project_name , name1:entry[0][0].name,roll1:entry[0][0].rollNum,id1:entry[0][0].email,
-            name2:entry[1][0].name,roll2:entry[1][0].rollNum,id2:entry[1][0].email }); // Add data in worksheet
+            if(entry[0][0] && entry[0][0].name && entry[0][0].name!="")
+            worksheet.addRow({s_no: counter, pname: entry[0].project_name , name1:entry[0][0]?entry[0][0].name:"",roll1:entry[0][0]?entry[0][0].rollNum:"",id1:entry[0][0]?entry[0][0].email:"",
+            name2:entry[0][0]?entry[1][0].name:"",roll2:entry[0][0]?entry[1][0].rollNum:"",id2:entry[0][0]?entry[1][0].email:"" }); // Add data in worksheet
             counter++;
         });
     }
