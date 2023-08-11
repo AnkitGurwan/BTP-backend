@@ -42,12 +42,9 @@ export const login = async (req, res) => {
 
 
 export const getToken = async (req,res) => {
-  console.log(1)
 
   const url = `https://login.microsoftonline.com/${tenantID}/oauth2/token`;
   const formData = new URLSearchParams();
-
-  console.log(2)
 
   //formdata
   formData.append('client_id', clientID);
@@ -58,8 +55,6 @@ export const getToken = async (req,res) => {
   formData.append('code', req.headers.code);
   formData.append('resource', "https://graph.microsoft.com");
 
-  console.log(3)
-
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -67,12 +62,9 @@ export const getToken = async (req,res) => {
     },
     body: formData.toString(),
   });
-
-  console.log(4)
   
 
   if (response.ok) {
-    console.log(5)
     const data = await response.json();
    
     const accessToken=data.access_token;
@@ -84,11 +76,10 @@ export const getToken = async (req,res) => {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    console.log(6)
     
     if (response2.ok) {
       const data = await response2.json();
-      console.log(7)
+      
 
       res.status(200).json({ studInformation: data });
     } else {
