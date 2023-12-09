@@ -8,8 +8,8 @@ import querystring from 'querystring';
 import cors from 'cors';
 
 const corsOptions = {
-    // origin: `${process.env.FRONTENDURL}`, // use your actual domain name (or localhost), using * is not recommended
-    origin: "http://localhost:3000", // use your actual domain name (or localhost), using * is not recommended
+    origin: `${process.env.FRONTENDURL}`, // use your actual domain name (or localhost), using * is not recommended
+    // origin: "http://localhost:3000", // use your actual domain name (or localhost), using * is not recommended
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
     allowedHeaders: ['Content-Type' , 'auth-token' , 'Accept' , 'Code' , 'Origin', 'Authorization'],
     credentials: true
