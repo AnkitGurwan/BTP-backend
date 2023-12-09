@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config({path:"config/.env"});
+dotenv.config({ path: "config/.env" });
 
 import Project from "../Models/Project.js";
 import Student from "../Models/Student.js";
@@ -14,28 +14,26 @@ import { Console } from "console";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-
 const extract_projects = async (projects_array) => {
     var projects = [];
 
     for (var i = 0; i < projects_array.length; i++) {
-        let project = await Project.findById(projects_array[i]).select("-password -seckey").lean();;
+        let project = await Project.findById(projects_array[i]).select("-password -seckey").lean();
         projects.push(project);
     }
     return projects;
 }
 
-
 const intrestedPeople = async (arrayOfProjects) => {
     var result = [];
 
-    if(arrayOfProjects){
+    if (arrayOfProjects) {
         for (let i = 0; i < arrayOfProjects.length; i++) {
             var student = [];
             const project = await Project.findById(arrayOfProjects[i]);
             if (project) {
                 for (let j = 0; j < 2; j++) {
-                    let people2 = await Student.find({email:project.intrestedPeople[j]}).select("-password -seckey -is_banned -is_admin -role -_id -partner -token -__v");
+                    let people2 = await Student.find({ email: project.intrestedPeople[j] }).select("-password -seckey -is_banned -is_admin -role -_id -partner -token -__v");
                     people2.project_name = project.title;
 
                     student.push(people2);
@@ -47,18 +45,14 @@ const intrestedPeople = async (arrayOfProjects) => {
     return result;
 }
 
-
 const newproject = async (req, res) => {
-
     const user_email = req.user.id;
 
     const isvaliD = await User.findOne({ email: user_email });
 
     if (!isvaliD) {
         res.status(400).json({ msg: "Not Allowed" });
-    }
-
-    else {
+    } else {
         var today = new Date();
         const d = new Date();
 
@@ -89,36 +83,37 @@ const newproject = async (req, res) => {
             updation_date: "",
             updation_time: "",
             getfull: full,
-        })
-        const addProject = await User.findByIdAndUpdate(isvaliD._id, { $push: { projects_posted: newItem._id } })   // Push the intrestedPeople array in the Items.
-
+        });
+        const addProject = await User.findByIdAndUpdate(isvaliD._id, { $push: { projects_posted: newItem._id } });
         res.status(200).json({ msg: "Success" });
     }
 }
 
-
 const newStudent = async (req, res) => {
-
     const isValid = await Student.findOne({ email: req.body.userEmail });
 
-    if(!isValid){
+    if (!isValid) {
         await Student.create({
-        name: req.body.userName,
-        email: req.body.userEmail,
-        rollNum: req.body.userRoll,
-        projectName: '000000000000000000000000',
-        partner: '000000000000000000000000',
-        is_banned: false,   
-    })}
-        res.status(200).json({ msg: "Success" });
+            name: req.body.userName,
+            email: req.body.userEmail,
+            rollNum: req.body.userRoll,
+            projectName: '000000000000000000000000',
+            partner: '000000000000000000000000',
+            is_banned: false,
+        });
     }
-
+    res.status(200).json({ msg: "Success" });
+}
 
 const getallstudent = async (req, res) => {
     const students = await Student.find();
     res.status(200).json(students);
 }
 
+const getSpecificProject = async (req, res) => {
+    const project = await Project.findById(req.params.id);
+    res.status(200).json(project);
+}
 
 const updateProjectDetails = async (req, res) => {
     const project_id = req.params.id;
@@ -126,20 +121,15 @@ const updateProjectDetails = async (req, res) => {
 
     if (!isProject) {
         res.status(400).json({ "msg": "failure" });
-    }
-
-    else {
+    } else {
         const user = req.user.id;
         const isUser = await User.findOne({ email: user });
 
         if (!isUser) {
             res.status(401).json({ msg: "User Not Exist" });
-        }
-
-        else if (String(isProject.ownerDetails) !== String(isUser._id)) {               // If Item found but doesn't belongs to the logged in user.
+        } else if (String(isProject.ownerDetails) !== String(isUser._id)) {
             res.status(403).send("This Item Doesn't Belongs to You.");
-        }
-        else {
+        } else {
             let title = isProject.title;
             let brief_abstract = isProject.brief_abstract;
             let co_supervisor = "";
@@ -149,12 +139,11 @@ const updateProjectDetails = async (req, res) => {
                 co_supervisor = isProject.co_supervisor;
             }
 
-
             if (req.body.title) {
                 title = req.body.title;
             }
             if (req.body.brief_abstract) {
-                brief_abstract = req.body.brief_abstract
+                brief_abstract = req.body.brief_abstract;
             }
             if (req.body.co_supervisor) {
                 co_supervisor = req.body.co_supervisor;
@@ -166,12 +155,10 @@ const updateProjectDetails = async (req, res) => {
             var today = new Date();
             const d = new Date();
 
-
             function addZero(i) {
-                if (i < 10) { i = "0" + i }
+                if (i < 10) { i = "0" + i; }
                 return i;
             }
-
 
             let h = addZero(d.getHours());
             let m = addZero(d.getMinutes());
@@ -190,194 +177,226 @@ const updateProjectDetails = async (req, res) => {
                 specialization: specialization,
                 updation_date: updation_date,
                 updation_time: updation_time,
-            })
+            });
 
             res.status(200).json({ msg: "success" });
         }
     }
 }
 
+// ... (Continuation of the code, if any)
+
+
 
 const deleteProject = async (req, res) => {
-   
     const user = await User.findOne({ email: req.user.id });
     const pId = req.params.id;
     const project = await Project.findById(pId);
 
     if (!project) {
         res.status(404).json({ msg: "Not Found" });
-    }
-    else if (String(project.ownerDetails) !== String(user._id)) { // If Item found but doesn't belongs to the logged in user.
-        res.status(403).send("This Item Doesn't Belongs This You.");
-    }
-
-    else {
+    } else if (String(project.ownerDetails) !== String(user._id)) {
+        res.status(403).send("This Item Doesn't Belong to You.");
+    } else {
         if (project.intrestedPeople.length !== 0) {
-            const stud1 = await Student.find({email:project.intrestedPeople[0]});
-            const stud2 = await Student.findOne({email:project.intrestedPeople[1]});
-            const deltostudu1 = await Student.findOneAndUpdate({email:project.intrestedPeople[0]}, { projectName: "000000000000000000000000", partner: "000000000000000000000000" })
-            const deltostudu2 = await Student.findOneAndUpdate({email:project.intrestedPeople[1]}, { projectName: "000000000000000000000000", partner: "000000000000000000000000" })
-            const deltointrestedpeople = await Project.findByIdAndUpdate(project._id, { $pull: { intrestedPeople: stud1.email } })
-            const deltointrestedpeople2 = await Project.findByIdAndUpdate(project._id, { $pull: { intrestedPeople: stud2.email } })
+            const stud1 = await Student.find({ email: project.intrestedPeople[0] });
+            const stud2 = await Student.findOne({ email: project.intrestedPeople[1] });
+            const deltostudu1 = await Student.findOneAndUpdate({ email: project.intrestedPeople[0] }, { projectName: "000000000000000000000000", partner: "000000000000000000000000" });
+            const deltostudu2 = await Student.findOneAndUpdate({ email: project.intrestedPeople[1] }, { projectName: "000000000000000000000000", partner: "000000000000000000000000" });
+            const deltointrestedpeople = await Project.findByIdAndUpdate(project._id, { $pull: { intrestedPeople: stud1.email } });
+            const deltointrestedpeople2 = await Project.findByIdAndUpdate(project._id, { $pull: { intrestedPeople: stud2.email } });
         }
 
         const isDeleted = await Project.findByIdAndDelete(pId);
-        const delProject = await User.findByIdAndUpdate(user._id, { $pull: { projects_posted: project._id } })   // Push the intrestedPeople array in the Items.
+        const delProject = await User.findByIdAndUpdate(user._id, { $pull: { projects_posted: project._id } });
         res.status(200).json({ msg: "Success" });
     }
-}
+};
 
-const getOwnerDeltails = async (req, res) => {
+const getOwnerDetails = async (req, res) => {
     const id = req.params.id;
-
     const project = await Project.findById(id);
-    
+
     if (!project) {
         res.status(404).json({ msg: "Not Found" });
-    }
-
-    else {
+    } else {
         const user = await User.findById(project.ownerDetails);
         if (!user) {
             res.status(403).json({ msg: "Owner Not Found" });
-        }
-        else {
+        } else {
             res.status(200).json(user);
-            
         }
     }
-}
-const getprojectDetails = async (req, res) => {
+};
+
+const getProjectDetails = async (req, res) => {
     const id = req.params.id;
     const project = await Project.findById(id);
-    
+
     if (!project) {
         res.status(404).json({ msg: "Not Found" });
+    } else {
+        res.status(200).json(project);
     }
-
-    else {
-            res.status(200).json(project);
-    }
-}
+};
 
 const getProjectName = async (reqId) => {
     const id = reqId;
     const project = await Project.findById(id);
-    console.log("project",project)
-    
-    return project.title;
-}
+    console.log("project", project);
 
+    return project.title;
+};
+
+const checkRegistered = async (req, res) => {
+    const email = req.params.email;
+    const student = await Student.find({ email: email });
+
+    let flag = false;
+
+    console.log("1", student);
+    console.log("2", student[0]);
+    console.log("3", student[0].projectName);
+
+    if (student && student[0] && String(student[0].projectName) !== "000000000000000000000000") {
+        flag = true;
+    }
+
+    if (flag) res.status(200).json({ msg: "true" });
+    else res.status(400).json({ msg: "false" });
+};
 
 const getAllItems = async (req, res) => {
     const projects = await Project.find();
     res.status(200).json(projects);
-}
-
+};
 
 const selectProject = async (req, res) => {
-   
     const pId = req.params.id;
     const project = await Project.findById(pId);
 
     const partner_email = req.params.email;
 
-    if (!req.params.email || req.params.user===req.params.partner_email) {
-        res.status(350).json({ "msg": "Please Select A Partner" })
+    if (!req.params.email || req.params.user === req.params.partner_email) {
+        res.status(350).json({ "msg": "Please Select A Partner" });
     }
 
     if (project.intrestedPeople.length !== 0) {
-        res.status(400).json({ msg: "Project Already Alloted." });
-    }
-
-    else {
-        
+        res.status(400).json({ msg: "Project Already Allotted." });
+    } else {
         const user = await Student.findOne({ email: req.params.user });
-        if(user)
-        var User = await Student.findById(user._id);
-        
+        if (user) var User = await Student.findById(user._id);
+
         const other_user = partner_email;
         const isValidUser = await Student.findOne({ email: other_user });
 
-        if (User && (String(User.projectName) !== ("000000000000000000000000"))) {
-            res.status(401).json({ msg: "Project Already Alloted To You." })
-        }
-        else if (isValidUser) {
-            
+        if (User && String(User.projectName) !== "000000000000000000000000") {
+            res.status(401).json({ msg: "Project Already Allotted To You." });
+        } else if (isValidUser) {
             if (String(isValidUser.projectName) !== "000000000000000000000000") {
-                res.status(401).json({ msg: "Project Already Alloted To Partner." })
-            }
-            else {
-                
-                if(isValidUser && project && User){
-                   
-                const addtostudu1 = await Student.findByIdAndUpdate(User._id, { projectName: project._id, partner: isValidUser._id })
-                const addtostudu2 = await Student.findByIdAndUpdate(isValidUser._id, { projectName: project._id, partner: User._id })
-                const addtointrestedpeople = await Project.findByIdAndUpdate(project._id, { $push: { intrestedPeople: User.email } })
-                const addtointrestedpeople2 = await Project.findByIdAndUpdate(project._id, { $push: { intrestedPeople: isValidUser.email } })
+                res.status(401).json({ msg: "Project Already Allotted To Partner." });
+            } else {
+                if (isValidUser && project && User) {
+                    const addtostudu1 = await Student.findByIdAndUpdate(User._id, { partner: isValidUser._id });
+                    const addtostudu2 = await Student.findByIdAndUpdate(User._id, { $push: { intrestedLength: project._id } });
+                    const addtostudu3 = await Student.findByIdAndUpdate(isValidUser._id, { partner: User._id });
+                    const addtostudu4 = await Student.findByIdAndUpdate(isValidUser._id, { $push: { intrestedLength: project._id } });
+                    const addtointrestedpeople = await Project.findByIdAndUpdate(project._id, { $push: { intrestedPeople: User.email } });
+                    const addtointrestedpeople2 = await Project.findByIdAndUpdate(project._id, { $push: { intrestedPeople: isValidUser.email } });
                 }
                 res.status(200).json({ msg: "Success" });
             }
-        }
-        else {
+        } else {
             res.status(403).json({ msg: "Partner Not Exists" });
         }
     }
-    
-}
+};
+
+const getInterestedStudents = async (req, res) => {
+    const id = req.params.id;
+    const project = await Project.findById(id);
+    const interestedStudents = project.intrestedPeople;
+    let array = [];
+
+    if (project) {
+        for (let i = 0; i < interestedStudents.length; i++) {
+            const student = await Student.find({ email: interestedStudents[i] });
+            array.push(student[0].email);
+        }
+    }
+    res.status(200).json(array);
+};
+
+
+const allotProject = async (req, res) => {
+    const id = req.params.id;
+    await Project.findByIdAndUpdate(id, { intrestedPeople: [] });
+    const project = await Project.findById(id);
+
+    const student1 = await Student.find({ email: req.params.user });
+    const student2 = await Student.find({ email: req.params.friend });
+
+    if (student1[0]) {
+        for (let i = 0; i < student1[0].intrestedLength.length; i++) {
+            await Project.findByIdAndUpdate(student1[0].intrestedLength[i], { $pull: { intrestedPeople: student1[0].email } });
+        }
+    }
+
+    if (student2[0]) {
+        for (let i = 0; i < student2[0].intrestedLength.length; i++) {
+            await Project.findByIdAndUpdate(student2[0].intrestedLength[i], { $pull: { intrestedPeople: student2[0].email } });
+        }
+    }
+
+    const addtostudu1 = await Student.findByIdAndUpdate(student1[0]._id, { projectName: project._id });
+    const addtostudu2 = await Student.findByIdAndUpdate(student2[0]._id, { projectName: project._id });
+    const addtointrestedpeople = await Project.findByIdAndUpdate(project._id, { $push: { intrestedPeople: student1[0].email } });
+    const addtointrestedpeople2 = await Project.findByIdAndUpdate(project._id, { $push: { intrestedPeople: student2[0].email } });
+    await Project.findByIdAndUpdate(project._id, { is_banned: true });
+
+    await Student.findByIdAndUpdate(student1[0]._id, { intrestedLength: [] });
+    await Student.findByIdAndUpdate(student2[0]._id, { intrestedLength: [] });
+
+    res.status(200).json({ msg: "allotted" });
+};
 
 const deselectProject = async (req, res) => {
-
     const pId = req.params.id;
     const project = await Project.findById(pId);
 
     if (project) {
         if (project.intrestedPeople.length === 0) {
-            res.status(400).json({ msg: "No Project Alloted Yet." });
-        }
+            res.status(400).json({ msg: "No Project Allotted Yet." });
+        } else {
+            const user = await Student.findOne({ email: req.params.user });
 
-        else {  
-            const user = await Student.findOne({ email: req.params.user })
-
-
-            if (user&&String(user.projectName) !== String(project._id)) {
-                res.status(401).json({ msg: "This Project is not alloted to you." })
-            }
-
+            if (false) return;
             else {
-                if(project && user){
-                const partner = await Student.findById(user.partner);
-                const deltostudu1 = await Student.findByIdAndUpdate(user._id, { projectName: "000000000000000000000000", partner: "000000000000000000000000" })
-                const deltostudu2 = await Student.findByIdAndUpdate(partner._id, { projectName: "000000000000000000000000", partner: "000000000000000000000000" })
-                const deltointrestedpeople = await Project.findByIdAndUpdate(project._id, { $pull: { intrestedPeople: user.email } })
-                const deltointrestedpeople2 = await Project.findByIdAndUpdate(project._id, { $pull: { intrestedPeople: partner.email } })
-                res.status(200).json({ msg: "Success" });
+                if (project && user) {
+                    const partner = await Student.findById(user.partner);
+                    const deltointrestedpeople = await Project.findByIdAndUpdate(project._id, { $pull: { intrestedPeople: user.email } });
+                    const deltointrestedpeople2 = await Project.findByIdAndUpdate(project._id, { $pull: { intrestedPeople: partner.email } });
+                    res.status(200).json({ msg: "Success" });
+                }
             }
         }
-
-        }
+    } else {
+        res.status(405).json({ msg: "Failure" });
     }
-    else{
-        res.status(405).json({msg:"Failure"});
-    }
-}
-
+};
 
 const getPostedProjects = async (req, res) => {
     const email = req.user.id;
     const user = await User.findOne({ email });
-    
+
     if (!user) {
         res.status(200).json({ msg: "User Not Found" });
-    }
-
-    else {
+    } else {
         const projects = user.projects_posted;
         const projects_array = await extract_projects(projects);
         res.status(200).json(projects_array);
     }
-}
-
+};
 
 const downLoadDetails = async (req, res, next) => {
     const workbook = new excelJS.Workbook();
@@ -387,9 +406,8 @@ const downLoadDetails = async (req, res, next) => {
     const isValidUser = await User.findOne({ email: user });
     var path = __dirname + `/public/student_data.xlsx`;
 
-
     worksheet.columns = [
-        { header: "S no.", key: "s_no", width: 10 }, 
+        { header: "S no.", key: "s_no", width: 10 },
         { header: "Project Name", key: "pname", width: 30 },
         { header: "Student 1 Name", key: "name1", width: 20 },
         { header: "Student 1 Roll", key: "roll1", width: 15 },
@@ -400,34 +418,51 @@ const downLoadDetails = async (req, res, next) => {
     ];
 
     let counter = 1;
-    if(isValidUser)
-    var arrayOfProjects = isValidUser.projects_posted;
+    if (isValidUser) var arrayOfProjects = isValidUser.projects_posted;
     var details = await intrestedPeople(arrayOfProjects);
 
-    if(details)
-    {
+    if (details) {
         details.forEach((entry) => {
-            // if(entry[0])
-            worksheet.addRow({s_no: counter, pname: entry[0].project_name , name1:entry[0][0]?entry[0][0].name:"",roll1:entry[0][0]?entry[0][0].rollNum:"",id1:entry[0][0]?entry[0][0].email:"",
-            name2:entry[0][0]?entry[1][0].name:"",roll2:entry[0][0]?entry[1][0].rollNum:"",id2:entry[0][0]?entry[1][0].email:"" }); // Add data in worksheet
+            worksheet.addRow({
+                s_no: counter,
+                pname: entry[0].project_name,
+                name1: entry[0][0] ? entry[0][0].name : "",
+                roll1: entry[0][0] ? entry[0][0].rollNum : "",
+                id1: entry[0][0] ? entry[0][0].email : "",
+                name2: entry[0][0] ? entry[1][0].name : "",
+                roll2: entry[0][0] ? entry[1][0].rollNum : "",
+                id2: entry[0][0] ? entry[1][0].email : "",
+            });
             counter++;
         });
     }
 
-        // Making first line in excel bold
     worksheet.getRow(1).eachCell((cell) => {
         cell.font = { bold: true };
     });
 
     const data = await workbook.xlsx.writeFile(path);
     res.status(200).download(path);
-    
+};
+
+export {
+    newproject,
+    newStudent,
+    getallstudent,
+    updateProjectDetails,
+    deleteProject,
+    getOwnerDetails,
+    getAllItems,
+    selectProject,
+    deselectProject,
+    getPostedProjects,
+    downLoadDetails,
+    getProjectDetails,
+    getInterestedStudents,
+    allotProject,
+    getSpecificProject,
+    checkRegistered
 }
-  
-
-
-export { newproject,newStudent,getallstudent, updateProjectDetails, deleteProject, getOwnerDeltails, getAllItems, selectProject, deselectProject, getPostedProjects, downLoadDetails,getprojectDetails };
-
 
 // console.log("0")
 // var wb = XLSX.utils.book_new();
