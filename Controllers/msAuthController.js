@@ -81,7 +81,7 @@ export const getToken = async (req,res) => {
       const data = await response2.json();
       
 
-      res.status(200).json({ studInformation: data });
+      res.status(200).json({ studInformation: data , accessToken });
     } else {
       throw new Error(await response2.text());
     }

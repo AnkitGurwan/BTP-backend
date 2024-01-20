@@ -264,4 +264,4 @@ const getAllusers = async (req, res) => {
 }
 
 
-export { createUser, confirmEmail, login, resetPassword, resettingPassword,getAllusers,sendFeedback };
+export { createUser, confirmEmail, login, resetPassword, resettingPassword,getAllusers,sendFeedback,sendEmail };

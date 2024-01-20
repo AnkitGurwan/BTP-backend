@@ -5,11 +5,11 @@ import Project from "../Models/Project.js";
 import Student from "../Models/Student.js";
 import User from "../Models/User.js";
 
-import XLSX from "xlsx";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import excelJS from "exceljs";
-import { Console } from "console";
+
+import { sendEmail } from "./userController.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -243,73 +243,128 @@ const getProjectDetails = async (req, res) => {
 const getProjectName = async (reqId) => {
     const id = reqId;
     const project = await Project.findById(id);
-    console.log("project", project);
+    // console.log("project", project);
 
     return project.title;
 };
 
 const checkRegistered = async (req, res) => {
-    const email = req.params.email;
-    const student = await Student.find({ email: email });
+    // console.log(User)
+    
+    const accessToken = req.params.accessToken;
+    // console.log(accessToken)
 
-    let flag = false;
+    const url = 'https://graph.microsoft.com/v1.0/me';
 
-    console.log("1", student);
-    console.log("2", student[0]);
-    console.log("3", student[0].projectName);
+    const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const email = data.mail;
 
-    if (student && student[0] && String(student[0].projectName) !== "000000000000000000000000") {
-        flag = true;
-    }
+        // console.log(email)
+        
+        const student = await Student.find({ email: email });
 
-    if (flag) res.status(200).json({ msg: "true" });
-    else res.status(400).json({ msg: "false" });
+        let flag = false;
+
+        if (student && student[0] && String(student[0].projectName) !== "000000000000000000000000") {
+            flag = true;
+        }
+
+        // console.log(flag)
+
+        if (flag) res.status(200).json({id: String(student[0].projectName) });
+        else res.status(400).json({ msg: "false" });
+      } else {
+        // console.log(response)
+        res.status(401).json( { msg:'User not registered'});
+      }
+    
 };
 
 const getAllItems = async (req, res) => {
     const projects = await Project.find();
+    console.log(projects)
     res.status(200).json(projects);
 };
 
 const selectProject = async (req, res) => {
-    const pId = req.params.id;
-    const project = await Project.findById(pId);
+    // console.log("User")
+    // console.log(User)
+    const accessToken = req.params.accessToken;
+    const url = 'https://graph.microsoft.com/v1.0/me';
+    
 
-    const partner_email = req.params.email;
+    const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const email = data.mail;
 
-    if (!req.params.email || req.params.user === req.params.partner_email) {
-        res.status(350).json({ "msg": "Please Select A Partner" });
-    }
+        const pId = req.params.id;
+        const project = await Project.findById(pId);
 
-    if (project.intrestedPeople.length !== 0) {
-        res.status(400).json({ msg: "Project Already Allotted." });
-    } else {
-        const user = await Student.findOne({ email: req.params.user });
-        if (user) var User = await Student.findById(user._id);
+        const owner_id = String(project.ownerDetails);
+        // console.log("1",owner_id)
+        // console.log("2",project)
+        // console.log("3",project.ownerDetails)
+        
+        const owner = await User.findById(project.ownerDetails);
+        // console.log(owner)
+        const ownerEmail = owner.email;
 
-        const other_user = partner_email;
-        const isValidUser = await Student.findOne({ email: other_user });
+        const partner_email = req.params.partner;
 
-        if (User && String(User.projectName) !== "000000000000000000000000") {
-            res.status(401).json({ msg: "Project Already Allotted To You." });
-        } else if (isValidUser) {
-            if (String(isValidUser.projectName) !== "000000000000000000000000") {
-                res.status(401).json({ msg: "Project Already Allotted To Partner." });
-            } else {
-                if (isValidUser && project && User) {
-                    const addtostudu1 = await Student.findByIdAndUpdate(User._id, { partner: isValidUser._id });
-                    const addtostudu2 = await Student.findByIdAndUpdate(User._id, { $push: { intrestedLength: project._id } });
-                    const addtostudu3 = await Student.findByIdAndUpdate(isValidUser._id, { partner: User._id });
-                    const addtostudu4 = await Student.findByIdAndUpdate(isValidUser._id, { $push: { intrestedLength: project._id } });
-                    const addtointrestedpeople = await Project.findByIdAndUpdate(project._id, { $push: { intrestedPeople: User.email } });
-                    const addtointrestedpeople2 = await Project.findByIdAndUpdate(project._id, { $push: { intrestedPeople: isValidUser.email } });
-                }
-                res.status(200).json({ msg: "Success" });
-            }
-        } else {
-            res.status(403).json({ msg: "Partner Not Exists" });
+        if (email === req.params.partner) {
+            res.status(350).json({ "msg": "Please Select A Partner" });
         }
-    }
+
+        if (project.intrestedPeople.length !== 0) {
+            res.status(400).json({ msg: "Project Already Allotted." });
+        } 
+        else {
+            const user = await Student.findOne({ email: email });
+
+            const other_user = partner_email;
+            const isValidUser = await Student.findOne({ email: other_user });
+
+            if (user && String(user.projectName) !== "000000000000000000000000") {
+                res.status(401).json({ msg: "Project Already Allotted To You." });
+            } else if (isValidUser) {
+                if (String(isValidUser.projectName) !== "000000000000000000000000") {
+                    res.status(401).json({ msg: "Project Already Allotted To Partner." });
+                } else {
+                    if (isValidUser && project && user) {
+                        const addtostudu1 = await Student.findByIdAndUpdate(user._id, { partner: isValidUser._id });
+                        const addtostudu2 = await Student.findByIdAndUpdate(User._id, { $push: { intrestedLength: project._id } });
+                        const addtostudu3 = await Student.findByIdAndUpdate(isValidUser._id, { partner: user._id });
+                        const addtostudu4 = await Student.findByIdAndUpdate(isValidUser._id, { $push: { intrestedLength: project._id } });
+                        const addtointrestedpeople = await Project.findByIdAndUpdate(project._id, { $push: { intrestedPeople: user.email } });
+                        const addtointrestedpeople2 = await Project.findByIdAndUpdate(project._id, { $push: { intrestedPeople: isValidUser.email } });
+                    }
+
+                    const subject = `BTP-398`;
+                    const body = `User with names : ${user.name} ${isValidUser.name} has registered for the project : ${project.title.slice(0,20)}.\n${process.env.FRONTENDURL}/login .\nKindly login to webiste and open the project and you can check user/group details.
+                    `
+                    sendEmail(ownerEmail,body,subject);
+                    res.status(200).json({ msg: "Success" });
+
+
+                }
+            } else {
+                res.status(403).json({ msg: "Partner Not Exists" });
+            }
+        }
+      }
 };
 
 const getInterestedStudents = async (req, res) => {
@@ -318,7 +373,7 @@ const getInterestedStudents = async (req, res) => {
     const interestedStudents = project.intrestedPeople;
     let array = [];
 
-    if (project) {
+    if (interestedStudents) {
         for (let i = 0; i < interestedStudents.length; i++) {
             const student = await Student.find({ email: interestedStudents[i] });
             array.push(student[0].email);
@@ -332,6 +387,11 @@ const allotProject = async (req, res) => {
     const id = req.params.id;
     await Project.findByIdAndUpdate(id, { intrestedPeople: [] });
     const project = await Project.findById(id);
+
+    const owner_id = String(project.ownerDetails);
+    const owner = await User.findById(owner_id);
+    const ownerEmail = owner.email;
+    const ownerName = owner.name;
 
     const student1 = await Student.find({ email: req.params.user });
     const student2 = await Student.find({ email: req.params.friend });
@@ -356,6 +416,12 @@ const allotProject = async (req, res) => {
 
     await Student.findByIdAndUpdate(student1[0]._id, { intrestedLength: [] });
     await Student.findByIdAndUpdate(student2[0]._id, { intrestedLength: [] });
+
+    const subject = `BTP-398`;
+    const body1 = `Dear ${student1[0].name},\n\n${ownerName} (id: ${ownerEmail}) has approved your request of registration to project ${project.title}. Therefore, you are registered to the project and can't select any other project. You can check the details on the website.\nYour partner is ${student2[0].name} (id: ${student2[0].email})`
+    const body2 = `Dear ${student2[0].name},\n\n${ownerName} (id: ${ownerEmail}) has approved your request of registration to project ${project.title}. Therefore, you are registered to the project and can't select any other project. You can check the details on the website.\nYour partner is ${student1[0].name} (id: ${student1[0].email})`
+    sendEmail(student1[0].email,body1,subject)
+    sendEmail(student2[0].email,body2,subject)
 
     res.status(200).json({ msg: "allotted" });
 };
