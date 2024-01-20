@@ -4,7 +4,7 @@ dotenv.config({ path: "config/.env" });
 import Project from "../Models/Project.js";
 import Student from "../Models/Student.js";
 import User from "../Models/User.js";
-
+import fetch from "node-fetch";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import excelJS from "exceljs";
@@ -243,13 +243,11 @@ const getProjectDetails = async (req, res) => {
 const getProjectName = async (reqId) => {
     const id = reqId;
     const project = await Project.findById(id);
-    // console.log("project", project);
 
     return project.title;
 };
 
 const checkRegistered = async (req, res) => {
-    // console.log(User)
     
     const accessToken = req.params.accessToken;
     // console.log(accessToken)
@@ -289,7 +287,7 @@ const checkRegistered = async (req, res) => {
 
 const getAllItems = async (req, res) => {
     const projects = await Project.find();
-    console.log(projects)
+    // console.log(projects)
     res.status(200).json(projects);
 };
 
